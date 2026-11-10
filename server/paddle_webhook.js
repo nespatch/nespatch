@@ -68,6 +68,27 @@ async function creditSlippers(env, userId, microSlippers, txnId) {
   return res.text();
 }
 
+async function creditFiles(env, userId, files, txnId) {
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/grant_credits`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+    body: JSON.stringify({
+      p_user: userId,
+      p_files: files,
+      p_transaction: txnId,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  }
+  return res.text();
+}
+
 export default {
   async fetch(request, env) {
     if (request.method !== "POST") {
@@ -92,9 +113,18 @@ export default {
     if (event.event_type === "transaction.completed") {
       const txn = event.data || {};
       const userId = txn.custom_data?.user_id;
+      const files = Number(txn.custom_data?.files);
       const slippers = txn.custom_data?.slippers;
 
-      if (userId && slippers) {
+      if (userId && Number.isInteger(files) && files > 0) {
+        try {
+          const bal = await creditFiles(env, userId, files, txn.id);
+          console.log("[paddle] credited files:", { userId, files, bal });
+        } catch (e) {
+          console.log("[paddle] file credit failed:", e.message);
+          return new Response(`Credit failed: ${e.message}`, { status: 500 });
+        }
+      } else if (userId && slippers) {
         const microSlippers = Number(slippers) * SLIPPER_SCALE;
         try {
           const bal = await creditSlippers(env, userId, microSlippers, txn.id);

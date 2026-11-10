@@ -1,0 +1,1 @@
+window.NESPATCH_SUPABASE = {"url": "https://qvihfoeouvfveacexcol.supabase.co", "key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2aWhmb2VvdXZmdmVhY2V4Y29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMDY3MDEsImV4cCI6MjA5OTg4MjcwMX0.O2TDj01LF1j_W0v-PqNhjmBcETdbAs8y-B9mI23JJbs"};

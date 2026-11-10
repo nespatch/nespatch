@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nespatch</title>
+  <meta name="description" content="DeepL PDF translation with preserved layout without subscription" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232536eb'/%3E%3Cpath d='M9 8.5h9.2L23 13.2V23.5H9V8.5Z' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3Cpath d='M18 8.7V13.3H22.8' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0E171C;
+      --bg-soft: #1A2328;
+      --text: #EDECEC;
+      --text-dim: rgba(237, 236, 236, 0.62);
+      --border: #2A3439;
+      --radius: 12px;
+      --maxw: 1040px;
+      --fs-body: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: var(--fs-body);
+      font-weight: 400;
+      line-height: 24px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+    }
+
+    .container {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .site-header .container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+    }
+
+    .wallet {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .google-sign-in[hidden],
+    .stat[hidden] { display: none; }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: transparent;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .stat b {
+      font-weight: 400;
+    }
+
+    .stat span {
+      color: var(--text-dim);
+    }
+
+    .stat-coin b {
+      color: var(--text);
+    }
+
+    .google-sign-in {
+      height: 32px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .google-sign-in:hover { opacity: 0.88; }
+
+    .sign-out {
+      border: 0;
+      background: none;
+      color: var(--text-dim);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 400;
+      font-size: 16px;
+      letter-spacing: 0.01em;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      display: grid;
+      place-items: center;
+    }
+
+    .brand-mark svg { display: block; }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-left: 20px;
+    }
+
+    .site-nav a {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 24px;
+      text-decoration: none;
+    }
+
+    .site-nav a:hover,
+    .site-nav a[aria-current="true"] {
+      color: var(--text);
+    }
+
+    .page-section { scroll-margin-top: 56px; }
+
+    .section-block { padding: 56px 0 0; }
+
+    #credits { min-height: calc(100vh - 56px); }
+
+    .section-block h2 {
+      margin: 0 0 20px;
+      font-size: 20px;
+      line-height: 26px;
+      font-weight: 400;
+      letter-spacing: -0.2px;
+    }
+
+    .purpose {
+      max-width: 34rem;
+    }
+
+    .purpose p {
+      margin: 0;
+    }
+
+    .purpose p + p {
+      margin-top: 12px;
+    }
+
+    .purpose a {
+      display: inline-block;
+      margin-top: 16px;
+      color: var(--text-dim);
+      text-underline-offset: 3px;
+    }
+
+    .purpose a:hover { color: var(--text); }
+
+    main {
+      min-height: calc(100vh - 56px);
+    }
+
+    .hero {
+      width: 100%;
+      padding: 48px 0 0;
+      text-align: left;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      max-width: 18em;
+      font-size: 26px;
+      line-height: 32.5px;
+      letter-spacing: -0.325px;
+      font-weight: 400;
+    }
+
+    .hero .sub {
+      margin: 0 0 32px;
+      max-width: 34rem;
+      color: var(--text-dim);
+    }
+
+    .drop {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      margin: 0;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .drop-langs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lang { position: relative; }
+
+    .lang-btn {
+      border: 0;
+      background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23EDECEC' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right center;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      padding: 6px 22px 6px 4px;
+      cursor: pointer;
+    }
+
+    .lang-native {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lang-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 190px;
+      max-height: 260px;
+      margin: 0;
+      padding: 6px;
+      overflow: auto;
+      list-style: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color-scheme: dark;
+      scrollbar-color: #2A3439 transparent;
+    }
+
+    .lang-menu::-webkit-scrollbar { width: 10px; }
+    .lang-menu::-webkit-scrollbar-thumb {
+      background: #2A3439;
+      border-radius: 8px;
+    }
+
+    .lang-menu[hidden] { display: none; }
+
+    .lang-menu button {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .lang-menu button:hover,
+    .lang-menu button[aria-selected="true"] {
+      background: var(--bg-soft);
+    }
+
+    .drop-swap {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text-dim);
+      font: inherit;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .drop-swap:hover { color: var(--text); }
+
+    .drop-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 220px;
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    .drop input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .drop-glyph {
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .drop-glyph svg { display: block; width: 36px; height: 44px; }
+
+    .drop-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: -0.16px;
+    }
+
+    .drop-hint {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 15px;
+    }
+
+    .drop-pick {
+      margin-top: 8px;
+      height: 40px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font: inherit;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .drop-pick:hover { opacity: 0.88; }
+
+    .paywall {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(14, 23, 28, 0.94);
+    }
+
+    .paywall[hidden] { display: none; }
+
+    .paywall-panel {
+      position: relative;
+      width: min(640px, 100%);
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 28px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .paywall-panel h2 {
+      margin: 0 72px 8px 0;
+      font-size: 20px;
+      line-height: 26px;
+      font-weight: 400;
+    }
+
+    .paywall-stay {
+      margin: 0 0 20px;
+    }
+
+    .paywall-compare {
+      width: 100%;
+      margin: 22px 0 0;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .paywall-compare th,
+    .paywall-compare td {
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .paywall-compare thead th {
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .paywall-compare thead th:last-child,
+    .paywall-compare td:last-child {
+      color: var(--text);
+    }
+
+    .paywall-compare tbody th {
+      width: 28%;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    .paywall-compare td { color: var(--text-dim); }
+
+    .paywall-note {
+      margin: 12px 0 0;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .paywall-agree {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 18px 0 0;
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .paywall-agree input {
+      margin-top: 3px;
+    }
+
+    .paywall-agree a { color: var(--text); }
+
+    .paywall-status {
+      margin: 8px 0 0;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .paywall-status[hidden] { display: none; }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+    }
+
+    .site-footer .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      min-height: 64px;
+      padding-top: 16px;
+      padding-bottom: 16px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .site-footer nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .site-footer a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+
+    .site-footer a:hover { color: var(--text); }
+
+    .paywall-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      height: 36px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .packs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .pack {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-soft);
+      color: var(--text);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .pack b {
+      font-size: 22px;
+      font-weight: 400;
+    }
+
+    .pack span {
+      color: var(--text-dim);
+      font-size: 15px;
+    }
+
+    .pack:hover { border-color: rgba(237, 236, 236, 0.45); }
+
+    @media (max-width: 640px) {
+      .packs { grid-template-columns: 1fr; }
+    }
+
+    .drop.is-file .drop-glyph { color: #d4a15a; }
+
+    .free-try {
+      width: min(640px, 100%);
+      margin: 28px 0 0;
+      text-align: left;
+    }
+
+    .free-try p {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .free-try-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .free-try input {
+      width: min(280px, 100%);
+      height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+    }
+
+    .free-try input::placeholder { color: var(--text-dim); }
+
+    .free-try button {
+      height: 40px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font: inherit;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .free-try button:hover { opacity: 0.88; }
+
+    .demo {
+      width: 100%;
+      margin: 0;
+    }
+
+    .demo-pair {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .demo figure {
+      width: min(200px, calc(50% - 8px));
+      margin: 0;
+    }
+
+    .demo-open {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: zoom-in;
+    }
+
+    .demo img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 56px 72px 24px;
+      background: rgba(14, 23, 28, 0.94);
+    }
+
+    .lightbox[hidden] { display: none; }
+
+    .lightbox-stage {
+      max-width: min(440px, 100%);
+      max-height: calc(100vh - 96px);
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+
+    .lightbox-stage.is-zoom {
+      max-width: 100%;
+      max-height: calc(100vh - 96px);
+      overflow: auto;
+      cursor: zoom-out;
+    }
+
+    .lightbox img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+      border-radius: 8px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .lightbox-stage.is-zoom img {
+      width: min(960px, 160vw);
+      max-width: none;
+      border-radius: 0;
+    }
+
+    .lightbox-close,
+    .lightbox-nav {
+      position: fixed;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .lightbox-close {
+      top: 16px;
+      right: 16px;
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+
+    .lightbox-nav {
+      top: 50%;
+      width: 40px;
+      height: 40px;
+      margin-top: -20px;
+      border-radius: 50%;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .lightbox-prev { left: 16px; }
+    .lightbox-next { right: 16px; }
+    .lightbox-nav[hidden] { display: none; }
+
+    .lightbox-caption {
+      position: fixed;
+      top: 22px;
+      left: 20px;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .demo figcaption {
+      margin: 0 0 8px;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .demo-note {
+      margin: 10px 0 0;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .download {
+      display: inline-flex;
+      align-items: center;
+      height: 40px;
+      margin: 14px 0 0;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    .download:hover { opacity: 0.88; }
+
+    .compare {
+      width: min(640px, 100%);
+      margin: 0;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .compare th,
+    .compare td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .compare thead th {
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .compare thead th:last-child {
+      color: var(--text);
+    }
+
+    .compare tbody th {
+      width: 34%;
+      color: var(--text-dim);
+      font-weight: 400;
+    }
+
+    .compare td { color: var(--text-dim); }
+
+    .compare td:last-child {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .compare-note {
+      margin: 12px 0 72px;
+      max-width: 36rem;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    @media (max-width: 820px) {
+      .container { padding: 0 16px; }
+      .site-header .container {
+        height: auto;
+        min-height: 56px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .site-nav { margin-left: 8px; gap: 16px; }
+      .page-section { scroll-margin-top: 112px; }
+      .wallet { width: 100%; }
+      .hero { padding: 32px 0 0; }
+      .section-block { padding-top: 40px; }
+      .drop-body { min-height: 180px; padding: 24px 16px; }
+      .drop-langs { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="14" height="16" viewBox="0 0 14 16" fill="none">
+            <path d="M1 1.5h7.2L13 6.2V14.5H1V1.5Z" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M8 1.7V6.2H12.6" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </span>
+        <span>nespatch</span>
+      </a>
+      <nav class="site-nav" aria-label="Page">
+        <a href="#translate">Translate</a>
+        <a href="#what-for">What for</a>
+        <a href="#why">Why I should use it?</a>
+        <a href="#demo">Demo</a>
+        <a href="#credits">Credits</a>
+      </nav>
+      <div class="wallet">
+        <button type="button" class="google-sign-in" id="google-sign-in">Continue with Google</button>
+        <div class="stat" id="credit-balance" hidden>
+          <b id="credit-amount">0</b>
+          <span>credits</span>
+          <button type="button" class="sign-out" id="sign-out">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero page-section" id="translate">
+      <div class="container">
+        <h1>DeepL PDF translate with preserved layout without subscription.<br></h1>
+        <!-- <p class="sub">Need one more PDF today? Buy Timeless Coin. Coins will not burn never.</p> -->
+
+        <div class="drop is-locked" id="drop" aria-disabled="true">
+          <div class="drop-langs">
+            <div class="lang">
+              <button type="button" class="lang-btn" aria-label="From" aria-haspopup="listbox" aria-expanded="false">English</button>
+              <select id="lang-from" class="lang-native" name="source" tabindex="-1" aria-hidden="true">
+                <option value="detect">Detect language</option>
+                <option value="en" selected>English</option>
+                <option value="es">Spanish</option>
+                <option value="de">German</option>
+                <option value="fr">French</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="nl">Dutch</option>
+                <option value="pl">Polish</option>
+                <option value="ru">Russian</option>
+                <option value="uk">Ukrainian</option>
+                <option value="tr">Turkish</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+              </select>
+            </div>
+            <button type="button" class="drop-swap" aria-label="Swap languages">↔</button>
+            <div class="lang">
+              <button type="button" class="lang-btn" aria-label="To" aria-haspopup="listbox" aria-expanded="false">Spanish</button>
+              <select id="lang-to" class="lang-native" name="target" tabindex="-1" aria-hidden="true">
+                <option value="en">English</option>
+                <option value="es" selected>Spanish</option>
+                <option value="de">German</option>
+                <option value="fr">French</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="nl">Dutch</option>
+                <option value="pl">Polish</option>
+                <option value="ru">Russian</option>
+                <option value="uk">Ukrainian</option>
+                <option value="tr">Turkish</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+              </select>
+            </div>
+          </div>
+          <div class="drop-body">
+            <input id="file" type="file" accept="application/pdf,.pdf" disabled tabindex="-1" />
+            <span class="drop-glyph" aria-hidden="true">
+              <svg viewBox="0 0 36 44" fill="none">
+                <path d="M7 2.5h13.5L31 13.5V41.5H7V2.5Z" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M20.2 2.8V13.6H31" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+            </span>
+            <p class="drop-title">Buy a credits first.</p>
+            <p class="drop-hint">Then you can add a PDF.</p>
+            <button type="button" class="drop-pick">Buy credits</button>
+          </div>
+        </div>
+
+        <form class="free-try" action="#" method="post">
+          <p>Want a free try?</p>
+          <div class="free-try-row">
+            <input type="email" name="email" placeholder="Your email" autocomplete="email" required />
+            <button type="submit">Send</button>
+          </div>
+        </form>
+
+        </div>
+      </section>
+
+      <section class="page-section section-block" id="what-for">
+        <div class="container">
+          <h2>What for</h2>
+          <div class="purpose">
+            <p>Use this for important papers. A diploma, a contract, a certificate and etc. The pages should look the same after translation.</p>
+            <a href="https://translate.google.com/?sl=auto&amp;tl=en&amp;op=docs" target="_blank" rel="noopener noreferrer">If you only need to understand a PDF, use Google Translate.</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section section-block" id="why">
+        <div class="container">
+          <h2>Why I should use it?</h2>
+          <div class="purpose">
+            <p>DeepL free gives you 1 file every 30 days.</p>
+            <p>The $10 plan gives 3 files. Used or not, next month you need to pay again to translate even 1 file.</p>
+            <p>nespatch credits you buy once. You can use them even 10 years later.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-section section-block" id="demo">
+        <div class="container">
+        <h2>Demo</h2>
+        <div class="demo">
+          <div class="demo-pair">
+            <figure>
+              <figcaption>Original</figcaption>
+              <button type="button" class="demo-open" aria-label="Open original">
+                <img src="demo/bitcoin_original.jpg" alt="Original PDF page" />
+              </button>
+            </figure>
+            <figure>
+              <figcaption>Translated</figcaption>
+              <button type="button" class="demo-open" aria-label="Open translated">
+                <img src="demo/bitcoin_translated_es.jpg" alt="Same page translated to Spanish" />
+              </button>
+            </figure>
+          </div>
+          <p class="demo-note">The watermark shows this is DeepL.</p>
+          <a class="download" href="demo/bitcoin%20es-ES.pdf" target="_blank" rel="noopener noreferrer">Open the demo PDF</a>
+        </div>
+        </div>
+      </section>
+
+      <section class="page-section section-block" id="credits">
+        <div class="container">
+        <h2>nespatch Credits</h2>
+        <table class="compare">
+          <thead>
+            <tr>
+              <th></th>
+              <th>DeepL Individual</th>
+              <th>nespatch Credits</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Price</th>
+              <td>$10.03 a month</td>
+              <td>$5, $10, or $20</td>
+            </tr>
+            <tr>
+              <th>Files</th>
+              <td>3 files</td>
+              <td>2, 5, or 11 files</td>
+            </tr>
+            <tr>
+              <th>Next month</th>
+              <td>Burned. Pay again</td>
+              <td>Credits stay forever</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="compare-note">DeepL price for Germany, in dollars. A full year is $8.36 a month. Your country can show another price.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© 2026 nespatch</span>
+      <nav aria-label="Legal">
+        <a href="terms.html">Terms</a>
+        <a href="refund.html">Refunds</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <div class="paywall" id="paywall" hidden>
+    <div class="paywall-panel" role="dialog" aria-modal="true" aria-labelledby="paywall-title">
+      <button type="button" class="paywall-close">Close</button>
+      <h2 id="paywall-title">Buy credits</h2>
+      <p class="paywall-stay">Credits never burn.</p>
+      <div class="packs">
+        <button type="button" class="pack" data-files="2"><b>$5</b><span>2 files</span></button>
+        <button type="button" class="pack" data-files="5"><b>$10</b><span>5 files</span></button>
+        <button type="button" class="pack" data-files="11"><b>$20</b><span>11 files</span></button>
+      </div>
+      <table class="paywall-compare">
+        <thead>
+          <tr>
+            <th></th>
+            <th>DeepL Individual</th>
+            <th>nespatch Credits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Price</th>
+            <td>$10.03 a month</td>
+            <td>$5, $10, or $20</td>
+          </tr>
+          <tr>
+            <th>Files</th>
+            <td>3 files</td>
+            <td>2, 5, or 11 files</td>
+          </tr>
+          <tr>
+            <th>Next month</th>
+            <td>Burned. Pay again</td>
+            <td>Credits never burn</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="paywall-agree">
+        <input type="checkbox" id="paywall-agree" />
+        <span>I agree to the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="refund.html" target="_blank" rel="noopener noreferrer">Refund policy</a>.</span>
+      </p>
+      <p class="paywall-status" id="paywall-status" hidden></p>
+      <p class="paywall-note">DeepL price for Germany, in dollars. A full year is $8.36 a month. Your country can show another price.</p>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <p class="lightbox-caption" id="lightbox-caption"></p>
+    <button type="button" class="lightbox-close">Close</button>
+    <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous">‹</button>
+    <button type="button" class="lightbox-nav lightbox-next" aria-label="Next">›</button>
+    <div class="lightbox-stage" id="lightbox-stage">
+      <img id="lightbox-img" alt="" />
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="paddle-config.js"></script>
+  <script>
+    var sb = window.supabase.createClient(
+      window.NESPATCH_SUPABASE.url,
+      window.NESPATCH_SUPABASE.key
+    );
+    if (window.Paddle && window.NESPATCH_PADDLE) {
+      Paddle.Environment.set("production");
+      Paddle.Initialize({
+        token: window.NESPATCH_PADDLE.token,
+        eventCallback: function (event) {
+          if (event.name === "checkout.completed") {
+            closePaywall();
+            sb.auth.getSession().then(function (result) {
+              loadCredits(result.data.session);
+            });
+          }
+        }
+      });
+    }
+    var signInButton = document.getElementById("google-sign-in");
+    var creditBalance = document.getElementById("credit-balance");
+    var creditsNode = document.getElementById("credit-amount");
+
+    var drop = document.getElementById("drop");
+    var dropPick = document.querySelector(".drop-pick");
+    var fileInput = document.getElementById("file");
+
+    function setFileAccess(amount) {
+      var locked = amount < 1;
+      drop.classList.toggle("is-locked", locked);
+      drop.setAttribute("aria-disabled", locked ? "true" : "false");
+      fileInput.disabled = locked;
+      dropPick.textContent = locked ? "Buy credits" : "Select from your computer";
+    }
+
+    var currentSession = null;
+
+    function showSignedOut() {
+      currentSession = null;
+      signInButton.hidden = false;
+      creditBalance.hidden = true;
+      setFileAccess(0);
+    }
+
+    function showCredits(amount) {
+      creditsNode.textContent = String(amount);
+      signInButton.hidden = true;
+      creditBalance.hidden = false;
+      setFileAccess(amount);
+    }
+
+    function loadCredits(session) {
+      currentSession = session || null;
+      if (!session) {
+        showSignedOut();
+        return;
+      }
+      sb.from("credits").select("balance").eq("user_id", session.user.id).maybeSingle()
+        .then(function (result) {
+          var amount = result.data && typeof result.data.balance === "number" ? result.data.balance : 0;
+          showCredits(amount);
+        })
+        .catch(function () {
+          showCredits(0);
+        });
+    }
+
+    signInButton.addEventListener("click", function () {
+      sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: location.origin + location.pathname }
+      });
+    });
+    document.getElementById("sign-out").addEventListener("click", function () {
+      sb.auth.signOut().then(showSignedOut);
+    });
+    sb.auth.getSession().then(function (result) {
+      loadCredits(result.data.session);
+      resumeBuy(result.data.session);
+    });
+    sb.auth.onAuthStateChange(function (_event, session) {
+      loadCredits(session);
+    });
+
+    ["dragenter", "dragover", "drop"].forEach(function (name) {
+      drop.addEventListener(name, function (event) {
+        event.preventDefault();
+      });
+    });
+    var langFrom = document.getElementById("lang-from");
+    var langTo = document.getElementById("lang-to");
+
+    function closeLangMenus() {
+      document.querySelectorAll(".lang-menu").forEach(function (menu) {
+        menu.hidden = true;
+      });
+      document.querySelectorAll(".lang-btn").forEach(function (button) {
+        button.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    function paintLang(select) {
+      var wrap = select.closest(".lang");
+      var selected = select.options[select.selectedIndex];
+      var button = wrap.querySelector(".lang-btn");
+      var side = select.id === "lang-from" ? "From" : "To";
+      button.textContent = selected.textContent;
+      button.setAttribute("aria-label", side + ", " + selected.textContent);
+      wrap.querySelectorAll(".lang-menu button").forEach(function (choice) {
+        choice.setAttribute("aria-selected", choice.dataset.value === select.value ? "true" : "false");
+      });
+    }
+
+    document.querySelectorAll(".lang-native").forEach(function (select) {
+      var wrap = select.closest(".lang");
+      var button = wrap.querySelector(".lang-btn");
+      var menu = document.createElement("ul");
+      menu.className = "lang-menu";
+      menu.hidden = true;
+      menu.setAttribute("role", "listbox");
+      Array.prototype.forEach.call(select.options, function (option) {
+        var item = document.createElement("li");
+        var choice = document.createElement("button");
+        choice.type = "button";
+        choice.textContent = option.textContent;
+        choice.dataset.value = option.value;
+        choice.addEventListener("click", function (event) {
+          event.stopPropagation();
+          select.value = option.value;
+          paintLang(select);
+          closeLangMenus();
+        });
+        item.appendChild(choice);
+        menu.appendChild(item);
+      });
+      wrap.appendChild(menu);
+      paintLang(select);
+      button.addEventListener("click", function (event) {
+        event.stopPropagation();
+        var open = menu.hidden;
+        closeLangMenus();
+        if (open) {
+          menu.hidden = false;
+          button.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
+
+    document.addEventListener("click", closeLangMenus);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeLangMenus();
+    });
+
+    document.querySelector(".drop-swap").addEventListener("click", function () {
+      if (langFrom.value === "detect") return;
+      var nextFrom = langTo.value;
+      var nextTo = langFrom.value;
+      langFrom.value = nextFrom;
+      langTo.value = nextTo;
+      paintLang(langFrom);
+      paintLang(langTo);
+    });
+    var paywall = document.getElementById("paywall");
+    var paywallStatus = document.getElementById("paywall-status");
+    var paywallAgree = document.getElementById("paywall-agree");
+    var buyResumed = false;
+
+    function openPaywall() {
+      paywall.hidden = false;
+    }
+
+    function closePaywall() {
+      paywall.hidden = true;
+    }
+
+    function setPaywallStatus(text) {
+      paywallStatus.hidden = !text;
+      paywallStatus.textContent = text || "";
+    }
+
+    function openCheckout(files) {
+      var priceId = window.NESPATCH_PADDLE && window.NESPATCH_PADDLE.prices[String(files)];
+      if (!priceId) {
+        setPaywallStatus("This pack is not connected to Paddle yet.");
+        return;
+      }
+      if (!currentSession) {
+        sessionStorage.setItem("nespatch-buy", String(files));
+        sb.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: location.origin + location.pathname }
+        });
+        return;
+      }
+      setPaywallStatus("");
+      Paddle.Checkout.open({
+        items: [{ priceId: priceId, quantity: 1 }],
+        customData: {
+          user_id: currentSession.user.id,
+          files: String(files)
+        },
+        customer: currentSession.user.email ? { email: currentSession.user.email } : undefined
+      });
+    }
+
+    function resumeBuy(session) {
+      if (buyResumed || !session) return;
+      var pending = sessionStorage.getItem("nespatch-buy");
+      if (!pending) return;
+      buyResumed = true;
+      sessionStorage.removeItem("nespatch-buy");
+      openPaywall();
+      paywallAgree.checked = true;
+      openCheckout(pending);
+    }
+
+    document.querySelectorAll(".pack").forEach(function (pack) {
+      pack.addEventListener("click", function () {
+        if (!paywallAgree.checked) {
+          setPaywallStatus("Please agree to the Terms and Refund policy.");
+          return;
+        }
+        openCheckout(pack.getAttribute("data-files"));
+      });
+    });
+
+    dropPick.addEventListener("click", function () {
+      if (fileInput.disabled) {
+        openPaywall();
+        return;
+      }
+      fileInput.click();
+    });
+    document.querySelector(".paywall-close").addEventListener("click", closePaywall);
+    paywall.addEventListener("click", function (event) {
+      if (event.target === paywall) closePaywall();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !paywall.hidden) closePaywall();
+    });
+    document.querySelector(".free-try").addEventListener("submit", function (event) {
+      event.preventDefault();
+    });
+
+    var lightbox = document.getElementById("lightbox");
+    var lightboxImg = document.getElementById("lightbox-img");
+    var lightboxStage = document.getElementById("lightbox-stage");
+    var lightboxCaption = document.getElementById("lightbox-caption");
+    var prevButton = document.querySelector(".lightbox-prev");
+    var nextButton = document.querySelector(".lightbox-next");
+    var shots = [];
+    var shotIndex = 0;
+    var zoomed = false;
+    var origin = null;
+    var dragged = false;
+
+    document.querySelectorAll(".demo-open").forEach(function (button) {
+      var img = button.querySelector("img");
+      var caption = button.parentElement.querySelector("figcaption").textContent;
+      var index = shots.push({ src: img.src, alt: img.alt, caption: caption }) - 1;
+      button.addEventListener("click", function () {
+        openAt(index);
+      });
+    });
+
+    function setZoom(on) {
+      zoomed = on;
+      lightboxStage.classList.toggle("is-zoom", on);
+      if (!on) {
+        lightboxStage.scrollTop = 0;
+        lightboxStage.scrollLeft = 0;
+      }
+    }
+
+    function zoomAt(clientX, clientY) {
+      var before = lightboxImg.getBoundingClientRect();
+      var rx = (clientX - before.left) / before.width;
+      var ry = (clientY - before.top) / before.height;
+      rx = Math.min(1, Math.max(0, rx));
+      ry = Math.min(1, Math.max(0, ry));
+      setZoom(true);
+      var frame = lightboxStage.getBoundingClientRect();
+      lightboxStage.scrollLeft = rx * lightboxImg.offsetWidth - frame.width / 2;
+      lightboxStage.scrollTop = ry * lightboxImg.offsetHeight - frame.height / 2;
+    }
+
+    function updateNav() {
+      prevButton.hidden = shotIndex === 0;
+      nextButton.hidden = shotIndex === shots.length - 1;
+    }
+
+    function showShot() {
+      var shot = shots[shotIndex];
+      lightboxImg.src = shot.src;
+      lightboxImg.alt = shot.alt;
+      lightboxCaption.textContent = shot.caption;
+      setZoom(false);
+      updateNav();
+    }
+
+    function openAt(index) {
+      shotIndex = index;
+      showShot();
+      lightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function step(delta) {
+      var next = shotIndex + delta;
+      if (next < 0 || next >= shots.length) return;
+      shotIndex = next;
+      showShot();
+    }
+
+    function closeLightbox() {
+      lightbox.hidden = true;
+      lightboxImg.src = "";
+      setZoom(false);
+      document.body.style.overflow = "";
+    }
+
+    lightboxStage.addEventListener("pointerdown", function (event) {
+      origin = { x: event.clientX, y: event.clientY };
+      dragged = false;
+    });
+    lightboxStage.addEventListener("pointermove", function (event) {
+      if (!origin) return;
+      if (Math.abs(event.clientX - origin.x) > 8 || Math.abs(event.clientY - origin.y) > 8) dragged = true;
+    });
+    lightboxStage.addEventListener("pointerup", function (event) {
+      if (!origin) return;
+      var dx = event.clientX - origin.x;
+      var dy = event.clientY - origin.y;
+      origin = null;
+      if (!zoomed && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+        dragged = true;
+        step(dx < 0 ? 1 : -1);
+      }
+    });
+    lightboxStage.addEventListener("click", function (event) {
+      if (dragged) {
+        dragged = false;
+        return;
+      }
+      event.stopPropagation();
+      if (zoomed) setZoom(false);
+      else zoomAt(event.clientX, event.clientY);
+    });
+
+    prevButton.addEventListener("click", function (event) {
+      event.stopPropagation();
+      step(-1);
+    });
+    nextButton.addEventListener("click", function (event) {
+      event.stopPropagation();
+      step(1);
+    });
+    lightbox.addEventListener("click", function (event) {
+      if (event.target === lightbox) closeLightbox();
+    });
+    document.querySelector(".lightbox-close").addEventListener("click", closeLightbox);
+    document.addEventListener("keydown", function (event) {
+      if (lightbox.hidden) return;
+      if (event.key === "Escape") closeLightbox();
+      if (event.key === "ArrowRight") step(1);
+      if (event.key === "ArrowLeft") step(-1);
+    });
+
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll(".site-nav a"));
+    var navSections = navLinks.map(function (link) {
+      return document.querySelector(link.getAttribute("href"));
+    });
+    function markNav(id) {
+      navLinks.forEach(function (link) {
+        var on = link.getAttribute("href") === "#" + id;
+        if (on) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
+      });
+    }
+    function sectionInView() {
+      var line = 88;
+      var current = navSections[0];
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+      if (atBottom) return navSections[navSections.length - 1];
+      navSections.forEach(function (section) {
+        if (section && section.getBoundingClientRect().top <= line) current = section;
+      });
+      return current;
+    }
+    function syncNav() {
+      var section = sectionInView();
+      if (section) markNav(section.id);
+    }
+    navLinks.forEach(function (link) {
+      link.addEventListener("click", function () {
+        markNav(link.getAttribute("href").slice(1));
+      });
+    });
+    document.addEventListener("scroll", syncNav, { passive: true });
+    syncNav();
+  </script>
+</body>
+</html>
