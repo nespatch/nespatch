@@ -70,3 +70,32 @@ $$;
 REVOKE ALL ON FUNCTION public.grant_credits(UUID, INT, TEXT) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.grant_credits(UUID, INT, TEXT) FROM anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.grant_credits(UUID, INT, TEXT) TO service_role;
+
+-- Spend one credit after a translation succeeds. Browser cannot call this.
+CREATE OR REPLACE FUNCTION public.spend_credit(p_user UUID)
+RETURNS INT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    bal INT;
+BEGIN
+    UPDATE public.credits
+        SET balance = balance - 1,
+            updated_at = now()
+        WHERE user_id = p_user
+          AND balance >= 1
+        RETURNING balance INTO bal;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'no credits';
+    END IF;
+
+    RETURN bal;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.spend_credit(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.spend_credit(UUID) FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.spend_credit(UUID) TO service_role;

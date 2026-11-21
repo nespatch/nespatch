@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-K2BP6CKZ"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18571601136"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18571601136');
+  </script>
   <title>nespatch</title>
-  <meta name="description" content="DeepL PDF translation with preserved layout without subscription" />
+  <meta name="description" content="Translate large PDF files with preserved layout without subscription. Pay per file" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232536eb'/%3E%3Cpath d='M9 8.5h9.2L23 13.2V23.5H9V8.5Z' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3Cpath d='M18 8.7V13.3H22.8' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E" />
   <style>
     :root {
@@ -21,6 +29,8 @@
     * { box-sizing: border-box; }
 
     html { scroll-behavior: smooth; }
+
+    html, body { overflow-x: clip; }
 
     body {
       margin: 0;
@@ -40,6 +50,7 @@
       top: 0;
       z-index: 10;
       background: var(--bg);
+      border-bottom: 1px solid var(--border);
     }
 
     .container {
@@ -49,17 +60,18 @@
     }
 
     .site-header .container {
-      display: flex;
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
       align-items: center;
-      gap: 16px;
+      column-gap: 28px;
       height: 56px;
     }
 
     .wallet {
-      margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-self: end;
+      min-width: 0;
     }
 
     .google-sign-in[hidden],
@@ -99,6 +111,7 @@
       color: var(--bg);
       font: inherit;
       font-size: 13px;
+      white-space: nowrap;
       cursor: pointer;
     }
 
@@ -117,6 +130,7 @@
       display: flex;
       align-items: center;
       gap: 9px;
+      min-width: 0;
       font-weight: 400;
       font-size: 16px;
       letter-spacing: 0.01em;
@@ -139,14 +153,16 @@
     .site-nav {
       display: flex;
       align-items: center;
-      gap: 22px;
-      margin-left: 20px;
+      gap: 24px;
+      min-width: 0;
     }
 
     .site-nav a {
+      flex: none;
       color: var(--text-dim);
       font-size: 14px;
       line-height: 24px;
+      white-space: nowrap;
       text-decoration: none;
     }
 
@@ -200,6 +216,28 @@
       text-align: left;
     }
 
+    .hero-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .hero-demo {
+      flex: none;
+      height: 36px;
+      margin-top: 2px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .hero-demo:hover { border-color: var(--text); }
+
     .hero h1 {
       margin: 0 0 12px;
       max-width: 18em;
@@ -228,24 +266,32 @@
     }
 
     .drop-langs {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
       align-items: center;
       gap: 4px;
       padding: 10px 16px;
       border-bottom: 1px solid var(--border);
     }
 
-    .lang { position: relative; }
+    .lang { position: relative; min-width: 0; }
 
     .lang-btn {
+      width: 100%;
       border: 0;
       background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23EDECEC' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right center;
       color: var(--text);
       font: inherit;
       font-size: 15px;
       padding: 6px 22px 6px 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
       cursor: pointer;
     }
+
+    .lang-btn.is-placeholder { color: var(--text-dim); }
 
     .lang-native {
       position: absolute;
@@ -280,6 +326,11 @@
     }
 
     .lang-menu[hidden] { display: none; }
+
+    .drop-langs .lang:last-child .lang-menu {
+      left: auto;
+      right: 0;
+    }
 
     .lang-menu button {
       display: block;
@@ -351,11 +402,33 @@
 
     .drop-glyph svg { display: block; width: 36px; height: 44px; }
 
+    .drop-fileline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      max-width: 100%;
+    }
+
+    .drop-badge {
+      display: none;
+      flex: none;
+      align-items: center;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 6px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
     .drop-title {
       margin: 0;
       font-size: 16px;
       font-weight: 400;
       letter-spacing: -0.16px;
+      overflow-wrap: anywhere;
     }
 
     .drop-hint {
@@ -364,8 +437,38 @@
       font-size: 15px;
     }
 
-    .drop-pick {
+    .drop-hint:empty { display: none; }
+
+    .drop-progress {
+      width: 100%;
+      height: 2px;
+      margin-top: 6px;
+      background: var(--border);
+    }
+
+    .drop-progress[hidden] { display: none; }
+
+    .drop-progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--text);
+      transition: width 0.5s linear;
+    }
+
+    .drop-pick:disabled,
+    .drop-change:disabled { opacity: 0.45; cursor: default; }
+
+    .drop-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
       margin-top: 8px;
+    }
+
+    .drop-pick {
       height: 40px;
       padding: 0 18px;
       border: 0;
@@ -378,6 +481,120 @@
     }
 
     .drop-pick:hover { opacity: 0.88; }
+
+    .drop-change {
+      display: none;
+      height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .drop-change:hover { border-color: var(--text); }
+
+    .drop-status {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      margin: 0 0 6px;
+      padding: 0 10px;
+      border-radius: 6px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .drop-status[hidden] { display: none; }
+
+    .drop.is-file { border-color: #8d969b; }
+
+    .drop.is-ready { border-color: var(--text); }
+
+    .drop.is-file .drop-body {
+      align-items: flex-start;
+      text-align: left;
+      min-height: 0;
+      padding: 28px;
+    }
+
+    .drop.is-file .drop-glyph { display: none; }
+
+    .drop.is-file .drop-fileline {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .drop.is-file .drop-badge { display: inline-flex; }
+
+    .drop.is-file .drop-title {
+      font-size: 20px;
+      line-height: 26px;
+    }
+
+    .drop-price {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .drop-price b {
+      color: var(--text);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.04em;
+    }
+
+    .drop-price[hidden],
+    .gallery-price[hidden],
+    .checkout-price[hidden] { display: none; }
+
+    .price-vat {
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .drop-meta {
+      margin: 8px 0 0;
+      color: var(--text-dim);
+      font-size: 15px;
+    }
+
+    .drop-meta[hidden] { display: none; }
+
+    .drop.is-file .drop-hint {
+      margin-top: 8px;
+      color: var(--text);
+    }
+
+    .drop.is-file .drop-actions {
+      justify-content: flex-end;
+      gap: 16px;
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .drop.is-file .drop-change { display: inline-flex; align-items: center; }
 
     .paywall {
       position: fixed;
@@ -394,7 +611,7 @@
 
     .paywall-panel {
       position: relative;
-      width: min(640px, 100%);
+      width: min(880px, 100%);
       max-height: calc(100vh - 48px);
       overflow: auto;
       padding: 28px;
@@ -411,64 +628,79 @@
     }
 
     .paywall-stay {
-      margin: 0 0 20px;
+      margin: 0;
     }
 
-    .paywall-compare {
-      width: 100%;
-      margin: 22px 0 0;
-      border-collapse: collapse;
-      text-align: left;
+    .paywall-stay + .paywall-stay {
+      margin-top: 6px;
+    }
+
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .plan-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      min-height: 148px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-soft);
+    }
+
+    .plan-card-pick {
+      border-color: var(--text);
+    }
+
+    .plan-card p {
+      margin: 0;
+      color: var(--text-dim);
       font-size: 15px;
     }
 
-    .paywall-compare th,
-    .paywall-compare td {
-      padding: 12px 8px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }
-
-    .paywall-compare thead th {
-      color: var(--text-dim);
-      font-size: 14px;
+    .plan-card b {
+      font-size: 28px;
+      line-height: 34px;
       font-weight: 400;
+      letter-spacing: -0.3px;
     }
 
-    .paywall-compare thead th:last-child,
-    .paywall-compare td:last-child {
-      color: var(--text);
+    .plan-card .pack {
+      margin-top: auto;
+      height: 36px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font: inherit;
+      font-size: 15px;
+      cursor: pointer;
     }
 
-    .paywall-compare tbody th {
-      width: 28%;
-      color: var(--text-dim);
-      font-weight: 400;
-    }
+    .plan-card .pack:hover { opacity: 0.88; }
 
-    .paywall-compare td { color: var(--text-dim); }
-
-    .paywall-note {
-      margin: 12px 0 0;
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-
-    .paywall-agree {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin: 18px 0 0;
+    .paywall-compare {
+      margin: 16px 0 0;
       color: var(--text-dim);
       font-size: 14px;
       line-height: 20px;
     }
 
-    .paywall-agree input {
-      margin-top: 3px;
+    .paywall-legal {
+      margin: 18px 0 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 18px;
     }
 
-    .paywall-agree a { color: var(--text); }
+    .paywall-legal a { color: var(--text); }
 
     .paywall-status {
       margin: 8px 0 0;
@@ -483,11 +715,10 @@
     }
 
     .site-footer .container {
-      display: flex;
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+      column-gap: 24px;
       min-height: 64px;
       padding-top: 16px;
       padding-bottom: 16px;
@@ -497,16 +728,37 @@
 
     .site-footer nav {
       display: flex;
+      justify-self: end;
       gap: 18px;
-      flex-wrap: wrap;
     }
 
     .site-footer a {
+      flex: none;
       color: var(--text-dim);
+      white-space: nowrap;
       text-decoration: none;
     }
 
     .site-footer a:hover { color: var(--text); }
+
+    .proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 28px;
+      margin-top: 14px;
+    }
+
+    .proof p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .proof b {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 400;
+    }
 
     .paywall-close {
       position: absolute;
@@ -523,47 +775,13 @@
       cursor: pointer;
     }
 
-    .packs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+    @media (max-width: 720px) {
+      .plan-grid { grid-template-columns: 1fr; }
     }
 
-    .pack {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--bg-soft);
-      color: var(--text);
-      font: inherit;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .pack b {
-      font-size: 22px;
-      font-weight: 400;
-    }
-
-    .pack span {
-      color: var(--text-dim);
-      font-size: 15px;
-    }
-
-    .pack:hover { border-color: rgba(237, 236, 236, 0.45); }
-
-    @media (max-width: 640px) {
-      .packs { grid-template-columns: 1fr; }
-    }
-
-    .drop.is-file .drop-glyph { color: #d4a15a; }
 
     .free-try {
-      width: min(640px, 100%);
+      width: 100%;
       margin: 28px 0 0;
       text-align: left;
     }
@@ -575,14 +793,15 @@
     }
 
     .free-try-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 280px) max-content;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
     }
 
     .free-try input {
-      width: min(280px, 100%);
+      width: 100%;
+      min-width: 0;
       height: 40px;
       padding: 0 16px;
       border: 1px solid var(--border);
@@ -608,143 +827,346 @@
     }
 
     .free-try button:hover { opacity: 0.88; }
+    .free-try button:disabled { opacity: 0.6; cursor: default; }
+
+    .free-try-status {
+      margin: 10px 0 0;
+      color: var(--text-dim);
+      font-size: 15px;
+    }
+
+    .free-try-status[hidden] { display: none; }
+
+    .gallery {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      background: #070b0d;
+    }
+
+    .gallery[hidden] { display: none; }
+
+    .gallery-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 2;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 32px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .gallery-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 64px 20px 12px;
+    }
+
+    .gallery-note {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .gallery-sheet {
+      width: min(680px, calc(100vw - 48px));
+      height: min(72vh, 860px);
+      overflow: auto;
+      background: #fff;
+      color: #1a1a1a;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    .gallery-page {
+      padding: 64px 56px;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .gallery-page h3 {
+      margin: 0 0 18px;
+      font-size: 22px;
+      font-weight: 400;
+    }
+
+    .gallery-page p { margin: 0 0 14px; }
+
+    .gallery-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 20px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 16px 28px 20px;
+      border-top: 1px solid rgba(237, 236, 236, 0.12);
+    }
+
+    .gallery-price {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .gallery-price b {
+      color: var(--text);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.04em;
+    }
+
+    .gallery-buy {
+      height: 44px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font: inherit;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .gallery-buy:hover { opacity: 0.88; }
+
+    .checkout {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #070b0d;
+    }
+
+    .checkout[hidden] { display: none; }
+
+    .checkout-card {
+      width: min(420px, 100%);
+    }
+
+    .checkout-card h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+    }
+
+    .checkout-file {
+      margin: 0 0 20px;
+      color: var(--text-dim);
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    .checkout-file[hidden] { display: none; }
+
+    .checkout-price {
+      margin: 0 0 24px;
+      font-size: 48px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .checkout-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .checkout-form input {
+      width: 100%;
+      height: 44px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+    }
+
+    .checkout-form input::placeholder { color: var(--text-dim); }
+
+    .checkout-form button {
+      height: 44px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font: inherit;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .checkout-form button:hover { opacity: 0.88; }
+    .checkout-form button:disabled { opacity: 0.6; cursor: default; }
+
+    .checkout-legal {
+      margin: 16px 0 0;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .checkout-legal a { color: var(--text); }
+
+    .checkout-status {
+      margin: 12px 0 0;
+      font-size: 15px;
+    }
+
+    .checkout-status[hidden] { display: none; }
+
+    @media (max-width: 820px) {
+      .gallery-page { padding: 32px 20px; }
+      .gallery-bar { justify-content: space-between; gap: 12px; }
+      .gallery-buy { padding: 0 14px; }
+    }
 
     .demo {
       width: 100%;
       margin: 0;
     }
 
-    .demo-pair {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
-    .demo figure {
-      width: min(200px, calc(50% - 8px));
-      margin: 0;
-    }
-
-    .demo-open {
-      display: block;
+    .compare-view {
+      --pos: 32%;
+      position: relative;
       width: 100%;
-      padding: 0;
-      border: 0;
-      background: none;
-      cursor: zoom-in;
-    }
-
-    .demo img {
-      display: block;
-      width: 100%;
-      height: auto;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 30;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 56px 72px 24px;
-      background: rgba(14, 23, 28, 0.94);
-    }
-
-    .lightbox[hidden] { display: none; }
-
-    .lightbox-stage {
-      max-width: min(440px, 100%);
-      max-height: calc(100vh - 96px);
+      aspect-ratio: 3508 / 2481;
+      container-type: inline-size;
       overflow: hidden;
-      cursor: zoom-in;
-    }
-
-    .lightbox-stage.is-zoom {
-      max-width: 100%;
-      max-height: calc(100vh - 96px);
-      overflow: auto;
-      cursor: zoom-out;
-    }
-
-    .lightbox img {
-      display: block;
-      width: 100%;
-      height: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       background: #fff;
-      border-radius: 8px;
       user-select: none;
+      touch-action: none;
+    }
+
+    .compare-sheet {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .compare-clip .compare-sheet {
+      right: auto;
+      width: 100cqi;
+    }
+
+    .compare-sheet img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 175%;
+      max-width: none;
+      height: auto;
+      transform: translate(-50%, -50%);
       -webkit-user-drag: none;
     }
 
-    .lightbox-stage.is-zoom img {
-      width: min(960px, 160vw);
-      max-width: none;
-      border-radius: 0;
+    .compare-clip {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: var(--pos);
+      overflow: hidden;
     }
 
-    .lightbox-close,
-    .lightbox-nav {
-      position: fixed;
-      border: 1px solid var(--border);
+    .compare-bar {
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      bottom: 0;
+      left: var(--pos);
+      width: 1px;
+      background: var(--bg);
+      pointer-events: none;
+    }
+
+    .compare-bar::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      margin: -9px 0 0 -9px;
+      border: 1px solid var(--bg);
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .compare-view:focus-within .compare-bar::after {
+      outline: 1px solid var(--bg);
+      outline-offset: 3px;
+    }
+
+    .compare-label {
+      position: absolute;
+      top: 12px;
+      z-index: 1;
+      padding: 4px 10px;
+      border-radius: 999px;
       background: var(--bg);
       color: var(--text);
-      font: inherit;
-      cursor: pointer;
+      font-size: 13px;
+      line-height: 18px;
+      pointer-events: none;
     }
 
-    .lightbox-close {
-      top: 16px;
-      right: 16px;
-      height: 36px;
-      padding: 0 14px;
-      border-radius: 999px;
-      font-size: 14px;
-    }
+    .compare-label-from { left: 12px; }
+    .compare-label-to { right: 12px; }
 
-    .lightbox-nav {
-      top: 50%;
-      width: 40px;
-      height: 40px;
-      margin-top: -20px;
-      border-radius: 50%;
-      font-size: 24px;
-      line-height: 1;
-    }
-
-    .lightbox-prev { left: 16px; }
-    .lightbox-next { right: 16px; }
-    .lightbox-nav[hidden] { display: none; }
-
-    .lightbox-caption {
-      position: fixed;
-      top: 22px;
-      left: 20px;
+    .compare-range {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
       margin: 0;
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-
-    .demo figcaption {
-      margin: 0 0 8px;
-      color: var(--text-dim);
-      font-size: 13px;
+      opacity: 0;
+      cursor: ew-resize;
+      appearance: none;
     }
 
     .demo-note {
-      margin: 10px 0 0;
+      margin: 12px 0 0;
       color: var(--text-dim);
       font-size: 13px;
     }
 
-    .download {
+    .demo-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .demo-actions a {
       display: inline-flex;
       align-items: center;
       height: 40px;
-      margin: 14px 0 0;
       padding: 0 18px;
       border-radius: 999px;
       background: var(--text);
@@ -753,7 +1175,8 @@
       text-decoration: none;
     }
 
-    .download:hover { opacity: 0.88; }
+    #demo h2 { margin-bottom: 32px; }
+    #demo { padding-bottom: 80px; }
 
     .compare {
       width: min(640px, 100%);
@@ -801,21 +1224,36 @@
     }
 
     @media (max-width: 820px) {
-      .container { padding: 0 16px; }
+      .container { padding: 0 20px; }
       .site-header .container {
-        height: auto;
-        min-height: 56px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        flex-wrap: wrap;
+        grid-template-columns: minmax(0, 1fr) max-content;
+        grid-template-rows: 56px 44px;
+        height: 100px;
+        column-gap: 12px;
       }
-      .site-nav { margin-left: 8px; gap: 16px; }
-      .page-section { scroll-margin-top: 112px; }
-      .wallet { width: 100%; }
+      .brand { grid-area: 1 / 1; }
+      .wallet { grid-area: 1 / 2; }
+      .site-nav {
+        grid-area: 2 / 1 / 3 / -1;
+        height: 44px;
+        gap: 20px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+      }
+      .site-nav::-webkit-scrollbar { display: none; }
+      .page-section { scroll-margin-top: 100px; }
       .hero { padding: 32px 0 0; }
       .section-block { padding-top: 40px; }
       .drop-body { min-height: 180px; padding: 24px 16px; }
-      .drop-langs { flex-wrap: wrap; }
+      .free-try-row { grid-template-columns: minmax(0, 1fr) max-content; }
+      .site-footer .container {
+        grid-template-columns: 1fr;
+        row-gap: 12px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+      .site-footer nav { justify-self: start; }
     }
   </style>
 </head>
@@ -833,10 +1271,10 @@
       </a>
       <nav class="site-nav" aria-label="Page">
         <a href="#translate">Translate</a>
-        <a href="#what-for">What for</a>
-        <a href="#why">Why I should use it?</a>
-        <a href="#demo">Demo</a>
-        <a href="#credits">Credits</a>
+        <!-- <a href="#what-for">What for?</a> -->
+        <!-- <a href="#why">Why I should use it?</a> -->
+        <!-- <a href="#demo">Demo</a> -->
+        <!-- <a href="#credits">Credits</a> -->
       </nav>
       <div class="wallet">
         <button type="button" class="google-sign-in" id="google-sign-in">Continue with Google</button>
@@ -852,16 +1290,20 @@
   <main>
     <section class="hero page-section" id="translate">
       <div class="container">
-        <h1>DeepL PDF translate with preserved layout without subscription.<br></h1>
+        <div class="hero-title">
+          <h1>Translate large PDF files with preserved layout without subscription. Pay per file.<br></h1>
+          <!-- <button type="button" class="hero-demo" id="open-demo">Open demo</button> -->
+        </div>
         <!-- <p class="sub">Need one more PDF today? Buy Timeless Coin. Coins will not burn never.</p> -->
 
-        <div class="drop is-locked" id="drop" aria-disabled="true">
+        <div class="drop" id="drop">
           <div class="drop-langs">
             <div class="lang">
-              <button type="button" class="lang-btn" aria-label="From" aria-haspopup="listbox" aria-expanded="false">English</button>
+              <button type="button" class="lang-btn is-placeholder" aria-label="Source language" aria-haspopup="listbox" aria-expanded="false">Source language</button>
               <select id="lang-from" class="lang-native" name="source" tabindex="-1" aria-hidden="true">
+                <option value="" selected>Source language</option>
                 <option value="detect">Detect language</option>
-                <option value="en" selected>English</option>
+                <option value="en">English</option>
                 <option value="es">Spanish</option>
                 <option value="de">German</option>
                 <option value="fr">French</option>
@@ -879,10 +1321,11 @@
             </div>
             <button type="button" class="drop-swap" aria-label="Swap languages">↔</button>
             <div class="lang">
-              <button type="button" class="lang-btn" aria-label="To" aria-haspopup="listbox" aria-expanded="false">Spanish</button>
+              <button type="button" class="lang-btn is-placeholder" aria-label="Target language" aria-haspopup="listbox" aria-expanded="false">Target language</button>
               <select id="lang-to" class="lang-native" name="target" tabindex="-1" aria-hidden="true">
+                <option value="" selected>Target language</option>
                 <option value="en">English</option>
-                <option value="es" selected>Spanish</option>
+                <option value="es">Spanish</option>
                 <option value="de">German</option>
                 <option value="fr">French</option>
                 <option value="it">Italian</option>
@@ -899,31 +1342,80 @@
             </div>
           </div>
           <div class="drop-body">
-            <input id="file" type="file" accept="application/pdf,.pdf" disabled tabindex="-1" />
+            <input id="file" type="file" accept="application/pdf,.pdf" tabindex="-1" />
             <span class="drop-glyph" aria-hidden="true">
               <svg viewBox="0 0 36 44" fill="none">
                 <path d="M7 2.5h13.5L31 13.5V41.5H7V2.5Z" stroke="currentColor" stroke-width="1.6"/>
                 <path d="M20.2 2.8V13.6H31" stroke="currentColor" stroke-width="1.6"/>
               </svg>
             </span>
-            <p class="drop-title">Buy a credits first.</p>
-            <p class="drop-hint">Then you can add a PDF.</p>
-            <button type="button" class="drop-pick">Buy credits</button>
+            <p class="drop-status" hidden>Ready</p>
+            <div class="drop-fileline">
+              <span class="drop-badge">PDF</span>
+              <p class="drop-title">add a PDF to see exact price.</p>
+            </div>
+            <p class="drop-meta" id="drop-meta" hidden></p>
+            <p class="drop-hint" aria-live="polite"></p>
+            <div class="drop-progress" hidden><span></span></div>
+            <div class="drop-actions">
+              <button type="button" class="drop-change">Choose another</button>
+              <p class="drop-price" id="drop-price" hidden><span>Full file</span><span class="price-row"><b id="drop-price-amount"></b><span class="price-vat">+ VAT</span></span></p>
+              <button type="button" class="drop-pick">Select from your device</button>
+            </div>
           </div>
         </div>
 
-        <form class="free-try" action="#" method="post">
-          <p>Want a free try?</p>
+        <div class="proof" aria-label="So far">
+          <p><b>373</b> files translated</p>
+          <p><b>109 394</b> pages delivered</p>
+        </div>
+
+        <div class="gallery" id="demo-gallery" hidden>
+          <button type="button" class="gallery-close" aria-label="Close">×</button>
+          <div class="gallery-stage">
+            <p class="gallery-note" id="file-demo-note">Page 12</p>
+            <div class="gallery-sheet" id="file-demo-sheet">
+              <article class="gallery-page">
+                <h3>The cold start</h3>
+                <p>A network product is hardest at the beginning. The first users arrive to an empty room, and the value they were promised is not there yet.</p>
+                <p>One translated page of the file sits here, the way a photo sits in a gallery. The price below is for every page, not for this one.</p>
+              </article>
+            </div>
+          </div>
+          <div class="gallery-bar">
+            <p class="gallery-price" id="gallery-price" hidden><span>Full file</span><span class="price-row"><b id="gallery-price-amount"></b><span class="price-vat">+ VAT</span></span></p>
+            <button type="button" class="gallery-buy">Translate full file</button>
+          </div>
+        </div>
+
+        <div class="checkout" id="file-checkout" hidden>
+          <button type="button" class="gallery-close" id="checkout-close" aria-label="Close">×</button>
+          <div class="checkout-card">
+            <h2>Pay for the full file</h2>
+            <p class="checkout-file" id="checkout-file" hidden></p>
+            <p class="checkout-price" id="checkout-price" hidden><span class="price-row"><b id="checkout-price-amount"></b><span class="price-vat">+ VAT</span></span></p>
+            <form class="checkout-form" id="checkout-form">
+              <input type="email" id="checkout-email" placeholder="Email for the translated file" autocomplete="email" maxlength="254" required />
+              <button type="submit" id="checkout-pay">Pay $4 + VAT</button>
+            </form>
+            <p class="checkout-legal">By buying, you agree to the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="refund.html" target="_blank" rel="noopener noreferrer">Refund policy</a>.</p>
+            <p class="checkout-status" id="checkout-status" hidden></p>
+          </div>
+        </div>
+
+        <!-- <form class="free-try" action="#" method="post" novalidate>
+          <p>Want to get a free try?</p>
           <div class="free-try-row">
-            <input type="email" name="email" placeholder="Your email" autocomplete="email" required />
+            <input type="email" name="email" placeholder="Leave your email here" autocomplete="email" maxlength="254" required />
             <button type="submit">Send</button>
           </div>
-        </form>
+          <p class="free-try-status" id="free-try-status" hidden></p>
+        </form> -->
 
         </div>
       </section>
 
-      <section class="page-section section-block" id="what-for">
+      <!-- <section class="page-section section-block" id="what-for">
         <div class="container">
           <h2>What for</h2>
           <div class="purpose">
@@ -931,44 +1423,21 @@
             <a href="https://translate.google.com/?sl=auto&amp;tl=en&amp;op=docs" target="_blank" rel="noopener noreferrer">If you only need to understand a PDF, use Google Translate.</a>
           </div>
         </div>
-      </section>
+      </section> -->
 
       <section class="page-section section-block" id="why">
         <div class="container">
           <h2>Why I should use it?</h2>
           <div class="purpose">
-            <p>DeepL free gives you 1 file every 30 days.</p>
-            <p>The $10 plan gives 3 files. Used or not, next month you need to pay again to translate even 1 file.</p>
-            <p>nespatch credits you buy once. You can use them even 10 years later.</p>
+            <p>All file translations services have limits and aren't keep original layout.</p>
+
           </div>
         </div>
       </section>
 
-      <section class="page-section section-block" id="demo">
-        <div class="container">
-        <h2>Demo</h2>
-        <div class="demo">
-          <div class="demo-pair">
-            <figure>
-              <figcaption>Original</figcaption>
-              <button type="button" class="demo-open" aria-label="Open original">
-                <img src="demo/bitcoin_original.jpg" alt="Original PDF page" />
-              </button>
-            </figure>
-            <figure>
-              <figcaption>Translated</figcaption>
-              <button type="button" class="demo-open" aria-label="Open translated">
-                <img src="demo/bitcoin_translated_es.jpg" alt="Same page translated to Spanish" />
-              </button>
-            </figure>
-          </div>
-          <p class="demo-note">The watermark shows this is DeepL.</p>
-          <a class="download" href="demo/bitcoin%20es-ES.pdf" target="_blank" rel="noopener noreferrer">Open the demo PDF</a>
-        </div>
-        </div>
-      </section>
+      
 
-      <section class="page-section section-block" id="credits">
+      <!-- <section class="page-section section-block" id="credits">
         <div class="container">
         <h2>nespatch Credits</h2>
         <table class="compare">
@@ -998,7 +1467,7 @@
           </tbody>
         </table>
         <p class="compare-note">DeepL price for Germany, in dollars. A full year is $8.36 a month. Your country can show another price.</p>
-      </div>
+      </div> -->
     </section>
   </main>
 
@@ -1018,62 +1487,52 @@
     <div class="paywall-panel" role="dialog" aria-modal="true" aria-labelledby="paywall-title">
       <button type="button" class="paywall-close">Close</button>
       <h2 id="paywall-title">Buy credits</h2>
-      <p class="paywall-stay">Credits never burn.</p>
-      <div class="packs">
-        <button type="button" class="pack" data-files="2"><b>$5</b><span>2 files</span></button>
-        <button type="button" class="pack" data-files="5"><b>$10</b><span>5 files</span></button>
-        <button type="button" class="pack" data-files="11"><b>$20</b><span>11 files</span></button>
+      <p class="paywall-stay">Not a subscription. No monthly charge.</p>
+      <p class="paywall-stay">One credit, one PDF. Credits never burn.</p>
+      <div class="plan-grid">
+        <article class="plan-card plan-card-pick">
+          <b>$5 <span class="price-vat">+ VAT</span></b>
+          <p>2 credits</p>
+          <button type="button" class="pack" data-files="2">Buy</button>
+        </article>
+        <article class="plan-card">
+          <b>$10 <span class="price-vat">+ VAT</span></b>
+          <p>5 credits</p>
+          <button type="button" class="pack" data-files="5">Buy</button>
+        </article>
+        <article class="plan-card">
+          <b>$20 <span class="price-vat">+ VAT</span></b>
+          <p>11 credits</p>
+          <button type="button" class="pack" data-files="11">Buy</button>
+        </article>
       </div>
-      <table class="paywall-compare">
-        <thead>
-          <tr>
-            <th></th>
-            <th>DeepL Individual</th>
-            <th>nespatch Credits</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>Price</th>
-            <td>$10.03 a month</td>
-            <td>$5, $10, or $20</td>
-          </tr>
-          <tr>
-            <th>Files</th>
-            <td>3 files</td>
-            <td>2, 5, or 11 files</td>
-          </tr>
-          <tr>
-            <th>Next month</th>
-            <td>Burned. Pay again</td>
-            <td>Credits never burn</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="paywall-agree">
-        <input type="checkbox" id="paywall-agree" />
-        <span>I agree to the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="refund.html" target="_blank" rel="noopener noreferrer">Refund policy</a>.</span>
-      </p>
+      <p class="paywall-compare">No need to charge monthly. Just pay per file.</p>
+      <p class="paywall-legal">By buying, you agree to the <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and <a href="refund.html" target="_blank" rel="noopener noreferrer">Refund policy</a>.</p>
       <p class="paywall-status" id="paywall-status" hidden></p>
-      <p class="paywall-note">DeepL price for Germany, in dollars. A full year is $8.36 a month. Your country can show another price.</p>
     </div>
   </div>
 
-  <div class="lightbox" id="lightbox" hidden>
-    <p class="lightbox-caption" id="lightbox-caption"></p>
-    <button type="button" class="lightbox-close">Close</button>
-    <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous">‹</button>
-    <button type="button" class="lightbox-nav lightbox-next" aria-label="Next">›</button>
-    <div class="lightbox-stage" id="lightbox-stage">
-      <img id="lightbox-img" alt="" />
-    </div>
-  </div>
-
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init("phc_toDCehR5v264u7Xy96zSUjQRryGJQWZxqiy8otEtuBup",{api_host:"https://us.i.posthog.com",capture_pageview:true,capture_pageleave:true});
+    posthog.register({product:"pdf"});
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
   <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
   <script src="supabase-config.js"></script>
   <script src="paddle-config.js"></script>
+  <script src="translate-config.js"></script>
+  <script src="cut-page.js"></script>
   <script>
+    function track(name, props) {
+      if (!window.posthog) return;
+      posthog.capture(name, props || {});
+    }
+    track("visited");
+    var signedInTracked = false;
+    var demoTracked = false;
+    var languagesTracked = false;
+
     var sb = window.supabase.createClient(
       window.NESPATCH_SUPABASE.url,
       window.NESPATCH_SUPABASE.key
@@ -1084,6 +1543,19 @@
         token: window.NESPATCH_PADDLE.token,
         eventCallback: function (event) {
           if (event.name === "checkout.completed") {
+            track("checkout_completed");
+            var purchase = window.nespatchPurchase;
+            if (window.gtag && purchase) {
+              var conversion = {
+                send_to: "AW-18571601136/F6FfCPvPmrcdEPDJ0JdF",
+                value: purchase.value,
+                currency: "USD"
+              };
+              var transactionId = event.data && event.data.transaction_id;
+              if (transactionId) conversion.transaction_id = transactionId;
+              gtag("event", "conversion", conversion);
+              window.nespatchPurchase = null;
+            }
             closePaywall();
             sb.auth.getSession().then(function (result) {
               loadCredits(result.data.session);
@@ -1098,14 +1570,158 @@
 
     var drop = document.getElementById("drop");
     var dropPick = document.querySelector(".drop-pick");
+    var dropChange = document.querySelector(".drop-change");
+    var dropTitle = document.querySelector(".drop-title");
+    var dropHint = document.querySelector(".drop-hint");
+    var dropPrice = document.getElementById("drop-price");
+    var dropPriceAmount = document.getElementById("drop-price-amount");
+    var dropMeta = document.getElementById("drop-meta");
+    var fileQuote = null;
+    var quoteToken = 0;
+    var dropStatus = document.querySelector(".drop-status");
     var fileInput = document.getElementById("file");
+    var heldFile = null;
+    var creditAmount = 0;
+    var translating = false;
+    var previewReady = false;
+    var previewTimers = [];
+    var dropProgress = document.querySelector(".drop-progress");
+    var dropProgressBar = dropProgress.querySelector("span");
+
+    function clearPreview() {
+      previewTimers.forEach(clearTimeout);
+      previewTimers = [];
+    }
+
+    function showProgress(on) {
+      dropProgress.hidden = !on;
+      if (!on) dropProgressBar.style.width = "0%";
+    }
+
+    function markReady(on) {
+      drop.classList.toggle("is-ready", on);
+      dropStatus.hidden = !on;
+    }
+
+    function paintDrop() {
+      if (translating) return;
+      showProgress(false);
+      if (heldFile && (creditAmount < 1 || !currentSession)) {
+        drop.classList.add("is-file");
+        markReady(false);
+        dropTitle.textContent = heldFile.name;
+        dropHint.textContent = previewReady ? "One credit translates this file." : "";
+        dropPick.textContent = previewReady ? "Buy credits" : "Translate one page (free)";
+        dropPick.disabled = false;
+        dropChange.disabled = false;
+        paintQuote();
+        return;
+      }
+      previewReady = false;
+      markReady(false);
+      if (heldFile) {
+        drop.classList.add("is-file");
+        dropTitle.textContent = heldFile.name;
+        dropHint.textContent = "One credit, one file.";
+        dropPick.textContent = "Translate one page";
+        dropPick.disabled = false;
+        paintQuote();
+        return;
+      }
+      drop.classList.remove("is-file");
+      markReady(false);
+      dropTitle.textContent = "add a PDF to see exact price.";
+      dropHint.textContent = "";
+      dropPick.textContent = "Select from your device";
+      dropPick.disabled = false;
+      paintQuote();
+    }
+
+    function filePrice(pages, chars) {
+      var characters = chars == null ? pages * 1700 : chars;
+      var cost = characters / 1000000 * 1.46 + 0.05 + Math.max(0, pages - 1) * 0.0002;
+      var breakeven = (cost + 0.5) / 0.95;
+      return Math.ceil(breakeven * 2);
+    }
+
+    function formatCount(value) {
+      return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function paintQuote() {
+      var show = Boolean(heldFile && fileQuote);
+      if (dropPrice) dropPrice.hidden = !show;
+      if (dropMeta) dropMeta.hidden = !show;
+      if (galleryPrice) galleryPrice.hidden = !show;
+      if (!show) {
+        if (dropPriceAmount) dropPriceAmount.textContent = "";
+        if (dropMeta) dropMeta.textContent = "";
+        return;
+      }
+      var parts = [fileQuote.pages + (fileQuote.pages === 1 ? " page" : " pages")];
+      if (fileQuote.chars != null) {
+        parts.push(formatCount(fileQuote.chars) + (fileQuote.chars === 1 ? " character" : " characters"));
+      }
+      dropMeta.textContent = parts.join(" · ");
+      dropPriceAmount.textContent = "$" + fileQuote.price;
+      if (galleryPriceAmount) galleryPriceAmount.textContent = "$" + fileQuote.price;
+    }
+
+    function readQuote(file) {
+      var token = ++quoteToken;
+      fileQuote = null;
+      paintQuote();
+      loadPdfjs().then(function (lib) {
+        lib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+        return file.arrayBuffer().then(function (data) {
+          return lib.getDocument({ data: data.slice(0) }).promise;
+        });
+      }).then(function (doc) {
+        if (token !== quoteToken) {
+          doc.destroy();
+          return;
+        }
+        fileQuote = { pages: doc.numPages, chars: null, price: filePrice(doc.numPages, null) };
+        paintQuote();
+        var chars = 0;
+        function step(n) {
+          if (token !== quoteToken) {
+            doc.destroy();
+            return;
+          }
+          if (n > doc.numPages) {
+            fileQuote.chars = chars;
+            fileQuote.price = filePrice(fileQuote.pages, chars);
+            paintQuote();
+            track("file_priced", {
+              pages: fileQuote.pages,
+              chars: fileQuote.chars,
+              price: fileQuote.price
+            });
+            doc.destroy();
+            return;
+          }
+          return doc.getPage(n).then(function (page) {
+            return page.getTextContent();
+          }).then(function (text) {
+            var items = text.items || [];
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].str) chars += items[i].str.length;
+            }
+            return step(n + 1);
+          });
+        }
+        return step(1);
+      }).catch(function () {
+        if (token !== quoteToken || !fileQuote) return;
+        paintQuote();
+      });
+    }
 
     function setFileAccess(amount) {
-      var locked = amount < 1;
-      drop.classList.toggle("is-locked", locked);
-      drop.setAttribute("aria-disabled", locked ? "true" : "false");
-      fileInput.disabled = locked;
-      dropPick.textContent = locked ? "Buy credits" : "Select from your computer";
+      creditAmount = amount;
+      if (translating) return;
+      paintDrop();
     }
 
     var currentSession = null;
@@ -1130,6 +1746,11 @@
         showSignedOut();
         return;
       }
+      if (!signedInTracked) {
+        signedInTracked = true;
+        posthog.identify(session.user.id);
+        track("signed_in");
+      }
       sb.from("credits").select("balance").eq("user_id", session.user.id).maybeSingle()
         .then(function (result) {
           var amount = result.data && typeof result.data.balance === "number" ? result.data.balance : 0;
@@ -1141,6 +1762,7 @@
     }
 
     signInButton.addEventListener("click", function () {
+      track("sign_in_started");
       sb.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo: location.origin + location.pathname }
@@ -1179,8 +1801,10 @@
       var selected = select.options[select.selectedIndex];
       var button = wrap.querySelector(".lang-btn");
       var side = select.id === "lang-from" ? "From" : "To";
+      var empty = !select.value;
       button.textContent = selected.textContent;
-      button.setAttribute("aria-label", side + ", " + selected.textContent);
+      button.classList.toggle("is-placeholder", empty);
+      button.setAttribute("aria-label", empty ? selected.textContent : side + ", " + selected.textContent);
       wrap.querySelectorAll(".lang-menu button").forEach(function (choice) {
         choice.setAttribute("aria-selected", choice.dataset.value === select.value ? "true" : "false");
       });
@@ -1194,6 +1818,7 @@
       menu.hidden = true;
       menu.setAttribute("role", "listbox");
       Array.prototype.forEach.call(select.options, function (option) {
+        if (!option.value) return;
         var item = document.createElement("li");
         var choice = document.createElement("button");
         choice.type = "button";
@@ -1203,7 +1828,11 @@
           event.stopPropagation();
           select.value = option.value;
           paintLang(select);
+          trackLanguages();
           closeLangMenus();
+          if (langFrom.value && langTo.value && dropHint.textContent === "Choose the languages.") {
+            dropHint.textContent = "";
+          }
         });
         item.appendChild(choice);
         menu.appendChild(item);
@@ -1227,21 +1856,28 @@
     });
 
     document.querySelector(".drop-swap").addEventListener("click", function () {
-      if (langFrom.value === "detect") return;
+      if (!langFrom.value || !langTo.value || langFrom.value === "detect") return;
       var nextFrom = langTo.value;
       var nextTo = langFrom.value;
       langFrom.value = nextFrom;
       langTo.value = nextTo;
       paintLang(langFrom);
       paintLang(langTo);
+      trackLanguages();
     });
+    function trackLanguages() {
+      if (languagesTracked || !langFrom.value || !langTo.value) return;
+      languagesTracked = true;
+      track("languages_chosen", { source: langFrom.value, target: langTo.value });
+    }
+
     var paywall = document.getElementById("paywall");
     var paywallStatus = document.getElementById("paywall-status");
-    var paywallAgree = document.getElementById("paywall-agree");
     var buyResumed = false;
 
     function openPaywall() {
       paywall.hidden = false;
+      track("paywall_opened");
     }
 
     function closePaywall() {
@@ -1261,6 +1897,7 @@
       }
       if (!currentSession) {
         sessionStorage.setItem("nespatch-buy", String(files));
+        track("sign_in_started", { credits: Number(files) });
         sb.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo: location.origin + location.pathname }
@@ -1268,6 +1905,9 @@
         return;
       }
       setPaywallStatus("");
+      track("checkout_started", { credits: Number(files) });
+      var packValue = { "2": 5, "5": 10, "11": 20 }[String(files)];
+      window.nespatchPurchase = packValue ? { value: packValue } : null;
       Paddle.Checkout.open({
         items: [{ priceId: priceId, quantity: 1 }],
         customData: {
@@ -1285,25 +1925,472 @@
       buyResumed = true;
       sessionStorage.removeItem("nespatch-buy");
       openPaywall();
-      paywallAgree.checked = true;
       openCheckout(pending);
     }
 
     document.querySelectorAll(".pack").forEach(function (pack) {
       pack.addEventListener("click", function () {
-        if (!paywallAgree.checked) {
-          setPaywallStatus("Please agree to the Terms and Refund policy.");
-          return;
-        }
         openCheckout(pack.getAttribute("data-files"));
       });
     });
 
-    dropPick.addEventListener("click", function () {
-      if (fileInput.disabled) {
-        openPaywall();
+    fileInput.addEventListener("change", function () {
+      var file = fileInput.files && fileInput.files[0];
+      fileInput.value = "";
+      if (!file) return;
+      holdFile(file);
+    });
+
+    var demoGallery = document.getElementById("demo-gallery");
+    var galleryPrice = document.getElementById("gallery-price");
+    var galleryPriceAmount = document.getElementById("gallery-price-amount");
+    var fileDemoNote = document.getElementById("file-demo-note");
+    var fileDemoSheet = document.getElementById("file-demo-sheet");
+
+    function openGallery() {
+      if (fileQuote) {
+        galleryPriceAmount.textContent = "$" + fileQuote.price;
+        galleryPrice.hidden = false;
+      } else if (galleryPrice) {
+        galleryPrice.hidden = true;
+      }
+      demoGallery.hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeGallery() {
+      demoGallery.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    var fileCheckout = document.getElementById("file-checkout");
+    var checkoutPrice = document.getElementById("checkout-price-amount");
+    var checkoutPay = document.getElementById("checkout-pay");
+    var checkoutFile = document.getElementById("checkout-file");
+    var checkoutStatus = document.getElementById("checkout-status");
+
+    function checkoutAmount() {
+      if (fileQuote && fileQuote.price) return fileQuote.price;
+      var shown = parseInt(String(galleryPriceAmount.textContent).replace(/[^0-9]/g, ""), 10);
+      return shown || 0;
+    }
+
+    function openFileCheckout() {
+      var amount = fileQuote && fileQuote.price ? fileQuote.price : 0;
+      var checkoutPriceRow = document.getElementById("checkout-price");
+      if (checkoutPriceRow) checkoutPriceRow.hidden = !amount;
+      if (amount) checkoutPrice.textContent = "$" + amount;
+      checkoutPay.textContent = amount ? "Pay $" + amount + " + VAT" : "Pay";
+      checkoutFile.textContent = heldFile ? heldFile.name : "";
+      checkoutFile.hidden = !heldFile;
+      checkoutStatus.hidden = true;
+      checkoutStatus.textContent = "";
+      fileCheckout.hidden = false;
+      track("file_checkout_opened", { price: amount || 0 });
+    }
+
+    function closeFileCheckout() {
+      fileCheckout.hidden = true;
+    }
+
+    document.querySelector(".gallery-buy").addEventListener("click", openFileCheckout);
+    document.getElementById("checkout-close").addEventListener("click", closeFileCheckout);
+    document.getElementById("checkout-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var input = document.getElementById("checkout-email");
+      var email = input.value.trim().toLowerCase();
+      var button = checkoutPay;
+      function showStatus(text) {
+        checkoutStatus.hidden = !text;
+        checkoutStatus.textContent = text || "";
+      }
+      if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showStatus("Enter a valid email.");
         return;
       }
+      button.disabled = true;
+      sb.from("emails").insert({ email: email }).then(function (result) {
+        if (result.error && result.error.code !== "23505") {
+          button.disabled = false;
+          showStatus("Could not save this email.");
+          return;
+        }
+        track("email_saved");
+        var endpoint = window.NESPATCH_TRANSLATE && window.NESPATCH_TRANSLATE.url;
+        if (!endpoint || !fileQuote || !heldFile) {
+          button.disabled = false;
+          showStatus("Choose a file first.");
+          return;
+        }
+        showStatus("Saving the file.");
+        var body = new FormData();
+        body.append("email", email);
+        body.append("pages", String(fileQuote.pages));
+        body.append("chars", fileQuote.chars == null ? "" : String(fileQuote.chars));
+        body.append("file", heldFile, heldFile.name || "file.pdf");
+        fetch(endpoint.replace(/\/$/, "") + "/checkout", {
+          method: "POST",
+          body: body
+        }).then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (data) {
+            if (!response.ok || !data.transactionId) {
+              throw new Error(data.error || "Could not start payment.");
+            }
+            return data;
+          });
+        }).then(function (data) {
+          button.disabled = false;
+          window.nespatchPurchase = { value: data.price };
+          track("checkout_started", { price: data.price });
+          Paddle.Checkout.open({
+            transactionId: data.transactionId,
+            customer: { email: email }
+          });
+        }).catch(function (error) {
+          button.disabled = false;
+          showStatus(error.message || "Could not start payment.");
+        });
+      }).catch(function () {
+        button.disabled = false;
+        showStatus("Could not save this email.");
+      });
+    });
+
+    document.querySelector(".gallery-close").addEventListener("click", closeGallery);
+    document.getElementById("open-demo").addEventListener("click", openGallery);
+    document.querySelector(".gallery-stage").addEventListener("click", function (event) {
+      if (event.target === event.currentTarget) closeGallery();
+    });
+    if (location.search.indexOf("gallery=1") !== -1) openGallery();
+    var demoToken = 0;
+    var docxReady = null;
+
+    function loadDocxPreview() {
+      if (window.docx && window.docx.renderAsync) return Promise.resolve(window.docx);
+      if (docxReady) return docxReady;
+      function addScript(src) {
+        return new Promise(function (resolve, reject) {
+          var script = document.createElement("script");
+          script.src = src;
+          script.onload = function () { resolve(); };
+          script.onerror = function () { reject(new Error("docx")); };
+          document.head.appendChild(script);
+        });
+      }
+      docxReady = addScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js")
+        .then(function () {
+          return addScript("https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js");
+        })
+        .then(function () { return window.docx; });
+      return docxReady;
+    }
+
+    function holdFile(file) {
+      if (!file) return;
+      if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
+        dropHint.textContent = "Choose a PDF.";
+        return;
+      }
+      demoToken += 1;
+      translating = false;
+      clearPreview();
+      previewReady = false;
+      closeGallery();
+      fileDemoSheet.replaceChildren();
+      heldFile = file;
+      fileQuote = null;
+      drop.classList.add("is-file");
+      paintDrop();
+      readQuote(file);
+      readPdfKind(file);
+    }
+
+    function failDemo(message) {
+      track("page_failed", { error: String(message || "Could not translate this page.").slice(0, 200) });
+      clearPreview();
+      translating = false;
+      showProgress(false);
+      dropPick.disabled = false;
+      dropChange.disabled = false;
+      dropHint.textContent = message || "Could not translate this page.";
+    }
+
+    function startDemo() {
+      if (!heldFile || !langFrom.value || !langTo.value) return;
+      var endpoint = window.NESPATCH_TRANSLATE && window.NESPATCH_TRANSLATE.url;
+      if (!endpoint) {
+        dropHint.textContent = "Translation is not connected yet.";
+        return;
+      }
+      var token = ++demoToken;
+      var file = heldFile;
+      var target = langTo.value;
+      translating = true;
+      previewReady = false;
+      closeGallery();
+      fileDemoSheet.replaceChildren();
+      markReady(false);
+      dropPick.disabled = true;
+      dropChange.disabled = true;
+      showProgress(true);
+      dropProgressBar.style.width = "28%";
+      dropHint.textContent = "Picking one page from the middle.";
+      track("page_started", { target: target });
+      file.arrayBuffer().then(function (data) {
+        return window.nespatchCutPage(data);
+      }).then(function (cut) {
+        if (token !== demoToken) return null;
+        dropHint.textContent = "Translating that page.";
+        dropProgressBar.style.width = "64%";
+        var body = new FormData();
+        body.append("file", new Blob([cut.bytes], { type: "application/pdf" }), "page.pdf");
+        body.append("target", target);
+        body.append("source", langFrom.value);
+        body.append("demo", "1");
+        return fetch(endpoint, { method: "POST", body: body }).then(function (response) {
+          if (!response.ok) {
+            return response.json().catch(function () { return {}; }).then(function (data) {
+              throw new Error(data.error || "Could not translate this page.");
+            });
+          }
+          return response.blob().then(function (blob) {
+            return { blob: blob, page: cut.page };
+          });
+        });
+      }).then(function (result) {
+        if (!result || token !== demoToken) return;
+        return loadDocxPreview().then(function (docx) {
+          fileDemoSheet.replaceChildren();
+          return docx.renderAsync(result.blob, fileDemoSheet).then(function () {
+            return result;
+          });
+        });
+      }).then(function (result) {
+        if (!result || token !== demoToken) return;
+        clearPreview();
+        translating = false;
+        showProgress(false);
+        dropPick.disabled = false;
+        dropChange.disabled = false;
+        dropHint.textContent = "";
+        fileDemoNote.textContent = "Page " + result.page + ".";
+        track("page_ready", { page: result.page });
+        openGallery();
+      }).catch(function (error) {
+        if (token !== demoToken) return;
+        failDemo(error.message);
+      });
+    }
+
+    window.nespatchHoldFile = holdFile;
+
+    var pdfKindToken = 0;
+    var pdfjsReady = null;
+
+    function loadPdfjs() {
+      if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+      if (pdfjsReady) return pdfjsReady;
+      pdfjsReady = new Promise(function (resolve, reject) {
+        var script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js";
+        script.onload = function () { resolve(window.pdfjsLib); };
+        script.onerror = function () { reject(new Error("pdfjs")); };
+        document.head.appendChild(script);
+      });
+      return pdfjsReady;
+    }
+
+    function pageKind(page) {
+      return Promise.all([page.getTextContent(), page.getOperatorList()]).then(function (parts) {
+        var chars = 0;
+        parts[0].items.forEach(function (item) {
+          if (item.str) chars += item.str.replace(/\s/g, "").length;
+        });
+        var box = page.view;
+        var pageArea = Math.abs((box[2] - box[0]) * (box[3] - box[1])) || 1;
+        var coverage = 0;
+        var a = 1, b = 0, c = 0, d = 1;
+        var stack = [];
+        var OPS = pdfjsLib.OPS;
+        var fns = parts[1].fnArray;
+        var args = parts[1].argsArray;
+        for (var i = 0; i < fns.length; i++) {
+          var fn = fns[i];
+          if (fn === OPS.save) {
+            stack.push([a, b, c, d]);
+          } else if (fn === OPS.restore) {
+            var prev = stack.pop();
+            if (prev) { a = prev[0]; b = prev[1]; c = prev[2]; d = prev[3]; }
+          } else if (fn === OPS.transform) {
+            var t = args[i];
+            var na = t[0] * a + t[1] * c;
+            var nb = t[0] * b + t[1] * d;
+            var nc = t[2] * a + t[3] * c;
+            var nd = t[2] * b + t[3] * d;
+            a = na; b = nb; c = nc; d = nd;
+          } else if (
+            fn === OPS.paintImageXObject ||
+            fn === OPS.paintImageXObjectRepeat ||
+            fn === OPS.paintInlineImageXObject
+          ) {
+            var share = Math.hypot(a, b) * Math.hypot(c, d) / pageArea;
+            if (share > coverage) coverage = share;
+          }
+        }
+        if (chars < 8 && coverage < 0.1) return "blank";
+        var hasText = chars >= 200 || (chars >= 40 && coverage < 0.15);
+        if (hasText && coverage >= 0.7) return "searchable";
+        if (hasText) return "text";
+        return "scan";
+      });
+    }
+
+    function readPdfKind(file) {
+      var token = ++pdfKindToken;
+      loadPdfjs().then(function (lib) {
+        lib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+        return file.arrayBuffer().then(function (data) {
+          return lib.getDocument({ data: data }).promise;
+        });
+      }).then(function (doc) {
+        var total = doc.numPages;
+        var limit = Math.min(total, 12);
+        var jobs = [];
+        for (var n = 1; n <= limit; n++) jobs.push(doc.getPage(n).then(pageKind));
+        return Promise.all(jobs).then(function (kinds) {
+          doc.destroy();
+          return { total: total, kinds: kinds };
+        });
+      }).then(function (result) {
+        if (token !== pdfKindToken) return;
+        var seen = {};
+        result.kinds.forEach(function (kind) {
+          if (kind !== "blank") seen[kind] = true;
+        });
+        var names = Object.keys(seen);
+        var kind = "scan";
+        if (!names.length) kind = "unknown";
+        else if (names.length === 1) kind = names[0];
+        else kind = "mixed";
+        track("file_chosen", { kind: kind, pages: result.total });
+      }).catch(function () {
+        if (token !== pdfKindToken) return;
+        track("file_chosen", { kind: "unknown" });
+      });
+    }
+
+    function playSteps(finish) {
+      clearPreview();
+      translating = true;
+      previewReady = false;
+      markReady(false);
+      dropPick.disabled = true;
+      dropChange.disabled = true;
+      showProgress(true);
+      var steps = [
+        ["Working on your PDF.", "16%"],
+        ["Translating the pages.", "48%"],
+        ["Keeping the layout in place.", "78%"],
+        ["Preparing the download.", "92%"]
+      ];
+      function showStep(step) {
+        if (!translating) return;
+        dropHint.textContent = step[0];
+        dropProgressBar.style.width = step[1];
+      }
+      showStep(steps[0]);
+      steps.forEach(function (step, index) {
+        if (index === 0) return;
+        previewTimers.push(setTimeout(function () {
+          showStep(step);
+        }, index * 1100));
+      });
+      if (finish) {
+        previewTimers.push(setTimeout(function () {
+          if (!translating) return;
+          finish();
+        }, steps.length * 1100));
+      }
+    }
+
+    function offerCredit() {
+      if (translating || !heldFile) return;
+      previewReady = true;
+      paintDrop();
+    }
+
+    function failTranslate(file, message) {
+      track("translate_failed", { error: String(message || "Translation failed.").slice(0, 200) });
+      clearPreview();
+      translating = false;
+      showProgress(false);
+      dropPick.disabled = false;
+      dropChange.disabled = false;
+      dropTitle.textContent = file.name;
+      dropHint.textContent = message || "Translation failed.";
+      dropPick.textContent = "Translate one page";
+    }
+
+    function startRealTranslate() {
+      if (translating || !heldFile || !currentSession) return;
+      var endpoint = window.NESPATCH_TRANSLATE && window.NESPATCH_TRANSLATE.url;
+      if (!endpoint) {
+        dropHint.textContent = "Translation is not connected yet.";
+        return;
+      }
+      var file = heldFile;
+      var body = new FormData();
+      body.append("file", file, file.name);
+      body.append("target", langTo.value);
+      body.append("source", langFrom.value);
+      playSteps();
+      track("translate_started");
+      fetch(endpoint, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + currentSession.access_token },
+        body: body
+      }).then(function (response) {
+        if (!response.ok) {
+          return response.json().catch(function () { return {}; }).then(function (data) {
+            throw new Error(data.error || "Translation failed.");
+          });
+        }
+        return response.blob();
+      }).then(function (blob) {
+        if (!translating) return;
+        clearPreview();
+        dropProgressBar.style.width = "100%";
+        var link = document.createElement("a");
+        var name = file.name.replace(/\.pdf$/i, "") + " translated.pdf";
+        link.href = URL.createObjectURL(blob);
+        link.download = name;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        track("translate_finished");
+        translating = false;
+        heldFile = null;
+        dropPick.disabled = false;
+        dropChange.disabled = false;
+        paintDrop();
+        loadCredits(currentSession);
+      }).catch(function (error) {
+        if (!translating && !heldFile) return;
+        failTranslate(file, error.message);
+      });
+    }
+
+    dropPick.addEventListener("click", function () {
+      if (!heldFile) {
+        fileInput.click();
+        return;
+      }
+      if (!langFrom.value || !langTo.value) {
+        dropHint.textContent = "Choose the languages.";
+        return;
+      }
+      startDemo();
+    });
+    dropChange.addEventListener("click", function () {
       fileInput.click();
     });
     document.querySelector(".paywall-close").addEventListener("click", closePaywall);
@@ -1311,134 +2398,83 @@
       if (event.target === paywall) closePaywall();
     });
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && !paywall.hidden) closePaywall();
+      if (event.key !== "Escape") return;
+      if (!fileCheckout.hidden) {
+        closeFileCheckout();
+        return;
+      }
+      if (!demoGallery.hidden) closeGallery();
+      if (!paywall.hidden) closePaywall();
     });
-    document.querySelector(".free-try").addEventListener("submit", function (event) {
+    var freeTry = document.querySelector(".free-try");
+    if (freeTry) freeTry.addEventListener("submit", function (event) {
       event.preventDefault();
-    });
-
-    var lightbox = document.getElementById("lightbox");
-    var lightboxImg = document.getElementById("lightbox-img");
-    var lightboxStage = document.getElementById("lightbox-stage");
-    var lightboxCaption = document.getElementById("lightbox-caption");
-    var prevButton = document.querySelector(".lightbox-prev");
-    var nextButton = document.querySelector(".lightbox-next");
-    var shots = [];
-    var shotIndex = 0;
-    var zoomed = false;
-    var origin = null;
-    var dragged = false;
-
-    document.querySelectorAll(".demo-open").forEach(function (button) {
-      var img = button.querySelector("img");
-      var caption = button.parentElement.querySelector("figcaption").textContent;
-      var index = shots.push({ src: img.src, alt: img.alt, caption: caption }) - 1;
-      button.addEventListener("click", function () {
-        openAt(index);
+      var form = event.currentTarget;
+      var input = form.querySelector("input[name=email]");
+      var status = document.getElementById("free-try-status");
+      var button = form.querySelector("button");
+      var email = input.value.trim().toLowerCase();
+      function showStatus(text) {
+        status.hidden = !text;
+        status.textContent = text || "";
+      }
+      if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showStatus("Enter a valid email.");
+        return;
+      }
+      button.disabled = true;
+      sb.from("emails").insert({ email: email }).then(function (result) {
+        button.disabled = false;
+        if (!result.error || result.error.code === "23505") {
+          input.value = "";
+          showStatus("Saved.");
+          track("email_saved");
+          return;
+        }
+        showStatus("Could not save this email.");
+      }).catch(function () {
+        button.disabled = false;
+        showStatus("Could not save this email.");
       });
     });
 
-    function setZoom(on) {
-      zoomed = on;
-      lightboxStage.classList.toggle("is-zoom", on);
-      if (!on) {
-        lightboxStage.scrollTop = 0;
-        lightboxStage.scrollLeft = 0;
+    var compare = document.getElementById("compare");
+    var compareRange = compare.querySelector(".compare-range");
+
+    function setCompare(value) {
+      var next = Math.min(100, Math.max(0, Number(value)));
+      compare.style.setProperty("--pos", next + "%");
+      compareRange.value = String(next);
+    }
+
+    function compareAt(clientX) {
+      var rect = compare.getBoundingClientRect();
+      setCompare((clientX - rect.left) / rect.width * 100);
+    }
+
+    compareRange.addEventListener("input", function () {
+      setCompare(compareRange.value);
+    });
+    compare.addEventListener("pointerdown", function (event) {
+      if (event.target.closest("a")) return;
+      if (!demoTracked) {
+        demoTracked = true;
+        track("demo_used");
       }
-    }
-
-    function zoomAt(clientX, clientY) {
-      var before = lightboxImg.getBoundingClientRect();
-      var rx = (clientX - before.left) / before.width;
-      var ry = (clientY - before.top) / before.height;
-      rx = Math.min(1, Math.max(0, rx));
-      ry = Math.min(1, Math.max(0, ry));
-      setZoom(true);
-      var frame = lightboxStage.getBoundingClientRect();
-      lightboxStage.scrollLeft = rx * lightboxImg.offsetWidth - frame.width / 2;
-      lightboxStage.scrollTop = ry * lightboxImg.offsetHeight - frame.height / 2;
-    }
-
-    function updateNav() {
-      prevButton.hidden = shotIndex === 0;
-      nextButton.hidden = shotIndex === shots.length - 1;
-    }
-
-    function showShot() {
-      var shot = shots[shotIndex];
-      lightboxImg.src = shot.src;
-      lightboxImg.alt = shot.alt;
-      lightboxCaption.textContent = shot.caption;
-      setZoom(false);
-      updateNav();
-    }
-
-    function openAt(index) {
-      shotIndex = index;
-      showShot();
-      lightbox.hidden = false;
-      document.body.style.overflow = "hidden";
-    }
-
-    function step(delta) {
-      var next = shotIndex + delta;
-      if (next < 0 || next >= shots.length) return;
-      shotIndex = next;
-      showShot();
-    }
-
-    function closeLightbox() {
-      lightbox.hidden = true;
-      lightboxImg.src = "";
-      setZoom(false);
-      document.body.style.overflow = "";
-    }
-
-    lightboxStage.addEventListener("pointerdown", function (event) {
-      origin = { x: event.clientX, y: event.clientY };
-      dragged = false;
+      compare.setPointerCapture(event.pointerId);
+      compareAt(event.clientX);
     });
-    lightboxStage.addEventListener("pointermove", function (event) {
-      if (!origin) return;
-      if (Math.abs(event.clientX - origin.x) > 8 || Math.abs(event.clientY - origin.y) > 8) dragged = true;
+    compare.addEventListener("pointermove", function (event) {
+      if (!compare.hasPointerCapture(event.pointerId)) return;
+      compareAt(event.clientX);
     });
-    lightboxStage.addEventListener("pointerup", function (event) {
-      if (!origin) return;
-      var dx = event.clientX - origin.x;
-      var dy = event.clientY - origin.y;
-      origin = null;
-      if (!zoomed && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-        dragged = true;
-        step(dx < 0 ? 1 : -1);
-      }
-    });
-    lightboxStage.addEventListener("click", function (event) {
-      if (dragged) {
-        dragged = false;
-        return;
-      }
-      event.stopPropagation();
-      if (zoomed) setZoom(false);
-      else zoomAt(event.clientX, event.clientY);
-    });
+    setCompare(compareRange.value);
 
-    prevButton.addEventListener("click", function (event) {
-      event.stopPropagation();
-      step(-1);
-    });
-    nextButton.addEventListener("click", function (event) {
-      event.stopPropagation();
-      step(1);
-    });
-    lightbox.addEventListener("click", function (event) {
-      if (event.target === lightbox) closeLightbox();
-    });
-    document.querySelector(".lightbox-close").addEventListener("click", closeLightbox);
-    document.addEventListener("keydown", function (event) {
-      if (lightbox.hidden) return;
-      if (event.key === "Escape") closeLightbox();
-      if (event.key === "ArrowRight") step(1);
-      if (event.key === "ArrowLeft") step(-1);
+    document.querySelectorAll(".demo-actions a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        var which = link.href.indexOf("translated") >= 0 ? "translated" : "original";
+        track("demo_pdf", { which: which });
+      });
     });
 
     var navLinks = Array.prototype.slice.call(document.querySelectorAll(".site-nav a"));
@@ -1453,7 +2489,7 @@
       });
     }
     function sectionInView() {
-      var line = 88;
+      var line = document.querySelector(".site-header").offsetHeight + 8;
       var current = navSections[0];
       var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
       if (atBottom) return navSections[navSections.length - 1];
